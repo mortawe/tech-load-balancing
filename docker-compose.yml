@@ -1,0 +1,68 @@
+version: "3.5"
+
+services:
+
+  web:
+    build: .
+    image: nginx_web
+    container_name: nginx_web
+    ports:
+      - 8080:8080
+    restart: on-failure
+    networks:
+      - chat-net
+    depends_on:
+      - api
+
+  db:
+    image: postgres:12
+    container_name: chat-db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=chat-db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./postgre-init/create.sql:/docker-entrypoint-initdb.d/1.sql
+    networks:
+      - chat-net
+    restart: always
+
+  api:
+    build: chat
+    container_name: chat-api
+    networks:
+      - chat-net
+    depends_on:
+      - db
+    restart: always
+
+  nodeexporter:
+    image: prom/node-exporter:v1.0.1
+    container_name: chat-nodeexporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+    network_mode: host
+    labels:
+      org.label-schema.group: "monitoring"
+
+volumes:
+  db-data:
+    name: chat-data
+networks:
+  chat-net:
+    name: chat
+
+#networks:
+#  chat:
+#    external: true
