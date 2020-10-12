@@ -30,8 +30,8 @@ services:
   api:
     build: chat
     container_name: chat-api
-    depends_on:
-      - db
+#    depends_on:
+#      - db
     environment:
       - DB_ADDR=104.45.76.88:5432
     restart: always
