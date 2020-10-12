@@ -1,5 +1,5 @@
 global:
-  scrape_interval:     15s
+  scrape_interval: 15s
   evaluation_interval: 15s
 
   # Attach these labels to any time series or alerts when communicating with
@@ -13,13 +13,19 @@ scrape_configs:
     scrape_interval: 5s
 
     static_configs:
-      - targets: ['104.45.76.88:9100']
+      - targets: [ '104.45.76.88:9100', '104.45.76.88:9113' ]
 
   - job_name: 'backend_2'
     scrape_interval: 5s
 
     static_configs:
-      - targets: ['104.45.76.88:9100', '104.45.76.88:9113']
+      - targets: [ '23.97.172.85:9100', '23.97.172.85:9113' ]
+
+  - job_name: 'backend_3'
+    scrape_interval: 5s
+
+    static_configs:
+      - targets: [ '137.117.229.68:9100', '137.117.229.68:9113' ]
 #
 #  - job_name: 'cadvisor'
 #    scrape_interval: 5s

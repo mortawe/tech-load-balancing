@@ -1,9 +1,8 @@
 version: "3.5"
 
 services:
-
   web:
-    build: .
+    build: ..
     image: nginx_web
     container_name: nginx_web
     ports:

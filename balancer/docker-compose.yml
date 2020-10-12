@@ -1,0 +1,10 @@
+version: "3.5"
+
+services:
+  load-balancer:
+    build: .
+    ports:
+      - 9999:9999
+    restart: on-failure
+    network_mode: host
+
