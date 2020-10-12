@@ -39,7 +39,7 @@ services:
   prometheus-nginx:
     image: nginx/nginx-prometheus-exporter:0.8.0
     ports:
-      - 8081:8081
+      - 8081
     entrypoint:
       - /usr/bin/exporter
       - -nginx.scrape-uri
