@@ -8,9 +8,8 @@ services:
     container_name: nginx_web
     ports:
       - 8080:8080
+      - 80:80
     restart: on-failure
-    networks:
-      - chat-net
     depends_on:
       - api
 
@@ -26,22 +25,29 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./postgre-init/create.sql:/docker-entrypoint-initdb.d/1.sql
-    networks:
-      - chat-net
     restart: always
 
   api:
     build: chat
     container_name: chat-api
-    networks:
-      - chat-net
     depends_on:
       - db
     restart: always
 
+  prometheus-nginx:
+    image: nginx/nginx-prometheus-exporter:0.8.0
+    ports:
+      - 8081
+    entrypoint:
+      - /usr/bin/exporter
+      - -nginx.scrape-uri
+      - http://web:80/nginx_status
+    depends_on:
+      - api
+    restart: always
+
   nodeexporter:
     image: prom/node-exporter:v1.0.1
-    container_name: chat-nodeexporter
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -52,17 +58,29 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
     restart: unless-stopped
-    network_mode: host
+    ports:
+      - 9100:9100
+    depends_on:
+      - api
     labels:
       org.label-schema.group: "monitoring"
+
+#  cadvisor:
+#    image: gcr.io/cadvisor/cadvisor:v0.37.0
+#    volumes:
+#      - /:/rootfs:ro
+#      - /var/run:/var/run:rw
+#      - /sys:/sys:ro
+#    command:
+#      - '--port=9100'
+#      - /var/lib/docker:/var/lib/docker:ro
+#      - /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
+#    restart: unless-stopped
+#    ports:
+#      - 9100:9100
+#    labels:
+#      org.label-schema.group: "monitoring"
 
 volumes:
   db-data:
     name: chat-data
-networks:
-  chat-net:
-    name: chat
-
-#networks:
-#  chat:
-#    external: true

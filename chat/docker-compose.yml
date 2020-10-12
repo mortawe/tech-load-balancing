@@ -1,0 +1,37 @@
+version: "3.5"
+
+services:
+  db:
+    image: postgres:12
+    container_name: chat-db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=chat-db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./postgre-init/create.sql:/docker-entrypoint-initdb.d/1.sql
+    networks:
+      - chat-net
+    restart: always
+
+  api:
+    build: .
+    container_name: chat-api
+    ports:
+      - 9000:9000
+    networks:
+      - chat-net
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  db-data:
+    name: chat-data
+networks:
+  chat-net:
+    name: chat
+
