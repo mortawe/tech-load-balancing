@@ -6,5 +6,5 @@ services:
     ports:
       - 9999:9999
     restart: on-failure
-    network_mode: host
+#    network_mode: host
 
